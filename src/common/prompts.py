@@ -29,14 +29,14 @@ PATH_PLANNING_ROUTER_SYSTEM_PROMPT = (
 )
 
 CLASSIFY_QUERY_PROMPT = (
-"分析此查询并确定需要参考哪些知识库。"
-"针对每个相关来源，生成一个针对该来源的特定子问题。"
-""
-"可用来源："
-"- around_search_agent：地点检索"
-"- path_planning_agent：路线规划"
-""
-"仅返回与查询相关的来源。"
+    "分析此查询并确定需要参考哪些知识库。"
+    "针对每个相关来源，生成一个针对该来源的特定子问题。"
+    ""
+    "可用来源："
+    "- around_search_agent：地点检索"
+    "- path_planning_agent：路线规划"
+    ""
+    "仅返回与查询相关的来源。"
 )
 
 ################################### SUBAGENT ###############################
@@ -208,9 +208,9 @@ DRIVING_ROUTE_HANDOFF_SINGLE_SYSTEM_PROMPT = (
     "5.你只能根据用户新的需求来调用back_to_geocode工具和back_to_around_search工具。不能在路径规划以后自行调用back_to_geocode工具和back_to_around_search工具。"
     "在你缺乏相关地点的坐标时，禁止自己生成坐标，你所使用的所有坐标，必须来自于geocode工具的输出。"
 )
-    
 
-AROUND_SEARCH_HANDOFF_SINGLE_SYSTEM_PROMPT =(
+
+AROUND_SEARCH_HANDOFF_SINGLE_SYSTEM_PROMPT = (
     "你是一名对指定场所周围进行相关地点检索的专家。你需要对用户需求的所有的地点进行请求其经纬度。"
     "你有3个工具可以使用：around_search、back_to_geocode、back_to_driving_route。"
     "around_search工具可以用来检索指定地点的周边地点并根据query_type来指定下一步的任务。"

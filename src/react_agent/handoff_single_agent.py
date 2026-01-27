@@ -1,17 +1,27 @@
-import os
 import asyncio
-from dotenv import load_dotenv
+import os
 from typing import Callable
 
-from langchain_dev_utils.chat_models import register_model_provider,load_chat_model
+from dotenv import load_dotenv
 from langchain.agents import create_agent
-from langchain.agents.middleware import wrap_model_call, ModelRequest, ModelResponse
-
+from langchain.agents.middleware import ModelRequest, ModelResponse, wrap_model_call
+from langchain_dev_utils.chat_models import load_chat_model, register_model_provider
 from langgraph.checkpoint.memory import InMemorySaver
 
+from common.prompts import (
+    AROUND_SEARCH_HANDOFF_SINGLE_SYSTEM_PROMPT,
+    DRIVING_ROUTE_HANDOFF_SINGLE_SYSTEM_PROMPT,
+    GEOCODE_HANDOFF_SINGLE_SYSTEM_PROMPT,
+)
+from common.tools import (
+    around_search,
+    back_to_around_search,
+    back_to_driving_route,
+    back_to_geocode,
+    driving_route_handoff_single,
+    geocode_handoff_single,
+)
 from react_agent.state import Gaodemap_State_Handoff_Single
-from common.tools import geocode_handoff_single, driving_route_handoff_single, around_search, back_to_geocode, back_to_around_search, back_to_driving_route
-from common.prompts import GEOCODE_HANDOFF_SINGLE_SYSTEM_PROMPT, DRIVING_ROUTE_HANDOFF_SINGLE_SYSTEM_PROMPT, AROUND_SEARCH_HANDOFF_SINGLE_SYSTEM_PROMPT
 
 load_dotenv()
 
@@ -19,12 +29,13 @@ register_model_provider(
     provider_name="dhrzhipu",
     chat_model="openai-compatible",
     base_url=os.getenv("DHRZHIPU_BASE_URL"),
-    compatibility_options = {
-        "support_tool_choice":["auto"],
-        "support_response_format":['json_schema',]
+    compatibility_options={
+        "support_tool_choice": ["auto"],
+        "support_response_format": [
+            "json_schema",
+        ],
     },
     # model_profiles=_PROFILES
-
 )
 
 model = load_chat_model(
@@ -32,7 +43,7 @@ model = load_chat_model(
     # model = "dhrark:doubao-1-5-pro-32k-250115",
     extra_body={
         "thinking": {"type": "disabled"},
-    }
+    },
 )
 
 STEP_CONFIG = {
@@ -43,12 +54,12 @@ STEP_CONFIG = {
     },
     "driving_route_step": {
         "prompt": DRIVING_ROUTE_HANDOFF_SINGLE_SYSTEM_PROMPT,
-        "tools": [driving_route_handoff_single,back_to_geocode,back_to_around_search],
+        "tools": [driving_route_handoff_single, back_to_geocode, back_to_around_search],
         "requires": ["geocode"],
     },
     "around_search_step": {
         "prompt": AROUND_SEARCH_HANDOFF_SINGLE_SYSTEM_PROMPT,
-        "tools": [around_search,back_to_geocode,back_to_driving_route],
+        "tools": [around_search, back_to_geocode, back_to_driving_route],
         "requires": ["geocode"],
     },
 }
@@ -59,11 +70,10 @@ async def apply_step_config(
     request: ModelRequest,
     handler: Callable[[ModelRequest], ModelResponse],
 ) -> ModelResponse:
-
     current_step = request.state.get("current_step", "geocode_step")
     print(f"当前阶段为：{current_step}")
 
-    stage_config = STEP_CONFIG[current_step]  
+    stage_config = STEP_CONFIG[current_step]
 
     # for key in stage_config["requires"]:
     #     if request.state.get(key) is None:
@@ -71,10 +81,10 @@ async def apply_step_config(
 
     system_prompt = stage_config["prompt"].format(**request.state)
     print(f"系统提示词为：{system_prompt[0:100]}")
-    print("当前可调用工具为：",[tool.name for tool in stage_config["tools"]])
-    request = request.override(  
-        system_prompt=system_prompt,  
-        tools=stage_config["tools"],  
+    print("当前可调用工具为：", [tool.name for tool in stage_config["tools"]])
+    request = request.override(
+        system_prompt=system_prompt,
+        tools=stage_config["tools"],
     )
 
     return await handler(request)
@@ -92,9 +102,9 @@ all_tools = [
 agent = create_agent(
     model,
     tools=all_tools,
-    state_schema=Gaodemap_State_Handoff_Single,  
-    middleware=[apply_step_config],  
-    # checkpointer=InMemorySaver(),  
+    state_schema=Gaodemap_State_Handoff_Single,
+    middleware=[apply_step_config],
+    # checkpointer=InMemorySaver(),
 )
 
 
@@ -105,10 +115,11 @@ if __name__ == "__main__":
     async def main():
         async for step in agent.astream(
             {"messages": [{"role": "user", "content": query}]},
-                # config=config
-            ):
-                for update in step.values():
-                    for message in update.get("messages", []):
-                        print(message.content)
-                        print("-"*100)
+            # config=config
+        ):
+            for update in step.values():
+                for message in update.get("messages", []):
+                    print(message.content)
+                    print("-" * 100)
+
     asyncio.run(main())

@@ -14,7 +14,9 @@ from common.utils import load_chat_model
 @patch.dict(os.environ, {"REGION": ""}, clear=False)
 def test_create_qwen_model_qwq(mock_chat_qwq):
     """Test QwQ model creation uses ChatQwQ."""
-    assert mock_chat_qwq.return_value == create_qwen_model("qwq-32b-preview", api_key="test-key")
+    assert mock_chat_qwq.return_value == create_qwen_model(
+        "qwq-32b-preview", api_key="test-key"
+    )
     mock_chat_qwq.assert_called_once_with(model="qwq-32b-preview", api_key="test-key")
 
 
@@ -22,7 +24,9 @@ def test_create_qwen_model_qwq(mock_chat_qwq):
 @patch.dict(os.environ, {"REGION": ""}, clear=False)
 def test_create_qwen_model_qvq(mock_chat_qwq):
     """Test QvQ model creation also uses ChatQwQ."""
-    assert mock_chat_qwq.return_value == create_qwen_model("qvq-72b-preview", api_key="test-key")
+    assert mock_chat_qwq.return_value == create_qwen_model(
+        "qvq-72b-preview", api_key="test-key"
+    )
     mock_chat_qwq.assert_called_once_with(model="qvq-72b-preview", api_key="test-key")
 
 
@@ -30,14 +34,18 @@ def test_create_qwen_model_qvq(mock_chat_qwq):
 @patch.dict(os.environ, {"REGION": ""}, clear=False)
 def test_create_qwen_model_qwen_plus(mock_chat_qwen):
     """Test Qwen+ model creation uses ChatQwen."""
-    assert mock_chat_qwen.return_value == create_qwen_model("qwen-plus", api_key="test-key")
+    assert mock_chat_qwen.return_value == create_qwen_model(
+        "qwen-plus", api_key="test-key"
+    )
     mock_chat_qwen.assert_called_once_with(model="qwen-plus", api_key="test-key")
 
 
 @patch("common.models.qwen.ChatQwQ")
 def test_create_qwen_model_qwq_with_prc_region(mock_chat_qwq):
     """Test QwQ model creation with PRC region."""
-    assert mock_chat_qwq.return_value == create_qwen_model("qwq-32b-preview", api_key="test-key", region="prc")
+    assert mock_chat_qwq.return_value == create_qwen_model(
+        "qwq-32b-preview", api_key="test-key", region="prc"
+    )
     mock_chat_qwq.assert_called_once_with(
         model="qwq-32b-preview",
         api_key="test-key",
@@ -48,7 +56,9 @@ def test_create_qwen_model_qwq_with_prc_region(mock_chat_qwq):
 @patch("common.models.qwen.ChatQwen")
 def test_create_qwen_model_qwen_plus_with_international_region(mock_chat_qwen):
     """Test Qwen+ model creation with international region."""
-    assert mock_chat_qwen.return_value == create_qwen_model("qwen-plus", api_key="test-key", region="international")
+    assert mock_chat_qwen.return_value == create_qwen_model(
+        "qwen-plus", api_key="test-key", region="international"
+    )
     mock_chat_qwen.assert_called_once_with(
         model="qwen-plus",
         api_key="test-key",
@@ -112,7 +122,9 @@ def test_load_chat_model_qwen_provider(mock_create_qwen):
 @patch.dict(os.environ, {"REGION": ""}, clear=False)
 def test_create_siliconflow_model_basic(mock_chat_siliconflow):
     """Test basic SiliconFlow model creation."""
-    assert mock_chat_siliconflow.return_value == create_siliconflow_model("Qwen/Qwen2.5-72B-Instruct", api_key="test-key")
+    assert mock_chat_siliconflow.return_value == create_siliconflow_model(
+        "Qwen/Qwen2.5-72B-Instruct", api_key="test-key"
+    )
     mock_chat_siliconflow.assert_called_once_with(
         model="Qwen/Qwen2.5-72B-Instruct",
         api_key="test-key",
@@ -175,7 +187,9 @@ def test_create_siliconflow_model_with_en_alias(mock_chat_siliconflow):
 @patch.dict(os.environ, {"SILICONFLOW_API_KEY": "env-key", "REGION": ""})
 def test_create_siliconflow_model_with_env_key(mock_chat_siliconflow):
     """Test SiliconFlow model creation using environment variable for API key."""
-    assert mock_chat_siliconflow.return_value == create_siliconflow_model("Qwen/Qwen2.5-72B-Instruct")
+    assert mock_chat_siliconflow.return_value == create_siliconflow_model(
+        "Qwen/Qwen2.5-72B-Instruct"
+    )
     mock_chat_siliconflow.assert_called_once_with(
         model="Qwen/Qwen2.5-72B-Instruct",
         api_key="env-key",
@@ -186,7 +200,9 @@ def test_create_siliconflow_model_with_env_key(mock_chat_siliconflow):
 @patch.dict(os.environ, {"SILICONFLOW_API_KEY": "env-key", "REGION": "prc"})
 def test_create_siliconflow_model_with_env_region_prc(mock_chat_siliconflow):
     """Test SiliconFlow model creation using environment variable for region (PRC)."""
-    assert mock_chat_siliconflow.return_value == create_siliconflow_model("Qwen/Qwen2.5-72B-Instruct")
+    assert mock_chat_siliconflow.return_value == create_siliconflow_model(
+        "Qwen/Qwen2.5-72B-Instruct"
+    )
     mock_chat_siliconflow.assert_called_once_with(
         model="Qwen/Qwen2.5-72B-Instruct",
         api_key="env-key",
@@ -198,7 +214,9 @@ def test_create_siliconflow_model_with_env_region_prc(mock_chat_siliconflow):
 @patch.dict(os.environ, {"SILICONFLOW_API_KEY": "env-key", "REGION": "international"})
 def test_create_siliconflow_model_with_env_region_international(mock_chat_siliconflow):
     """Test SiliconFlow model creation using environment variable for region (international)."""
-    assert mock_chat_siliconflow.return_value == create_siliconflow_model("Qwen/Qwen2.5-72B-Instruct")
+    assert mock_chat_siliconflow.return_value == create_siliconflow_model(
+        "Qwen/Qwen2.5-72B-Instruct"
+    )
     mock_chat_siliconflow.assert_called_once_with(
         model="Qwen/Qwen2.5-72B-Instruct",
         api_key="env-key",
@@ -223,7 +241,9 @@ def test_create_siliconflow_model_with_custom_base_url(mock_chat_siliconflow):
 @patch("common.models.create_siliconflow_model")
 def test_load_chat_model_siliconflow_provider(mock_create_siliconflow):
     """Test load_chat_model with SiliconFlow provider."""
-    assert mock_create_siliconflow.return_value == load_chat_model("siliconflow:Qwen/Qwen2.5-72B-Instruct")
+    assert mock_create_siliconflow.return_value == load_chat_model(
+        "siliconflow:Qwen/Qwen2.5-72B-Instruct"
+    )
     mock_create_siliconflow.assert_called_once_with("Qwen/Qwen2.5-72B-Instruct")
 
 
