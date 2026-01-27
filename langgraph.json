@@ -1,7 +1,7 @@
 {
   "dependencies": ["."],
   "graphs": {
-    "agent": "./src/react_agent/graph.py:graph"
+    "agent": "./src/react_agent/handoff_single_agent.py:agent"
   },
   "env": ".env"
 }

@@ -3,12 +3,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Sequence
+from typing import Sequence,Literal,NotRequired,Callable
+from typing_extensions import Annotated
+import operator
+from pydantic import BaseModel,Field
 
 from langchain_core.messages import AnyMessage
 from langgraph.graph import add_messages
+from langchain.agents import AgentState
 from langgraph.managed import IsLastStep
-from typing_extensions import Annotated
+from langchain.agents.middleware import wrap_model_call, ModelRequest, ModelResponse
+
+from common.basemodel import Classification,AgentOutput
+
+
 
 
 @dataclass
@@ -58,3 +66,37 @@ class State(InputState):
     # retrieved_documents: List[Document] = field(default_factory=list)
     # extracted_entities: Dict[str, Any] = field(default_factory=dict)
     # api_connections: Dict[str, Any] = field(default_factory=dict)
+
+
+###################### ROUTER ######################################
+
+class Gaodemap_State_Router(AgentState):
+    query: str
+    classifications: list[Classification]
+    results: Annotated[list[AgentOutput], operator.add]
+    final_answer: str
+
+###################### HANDOFF SINGLE AGENT ########################
+
+class Gaodemap_State_Handoff_Single(AgentState):
+    current_step: Literal["around_search_step", "geocode_step", "driving_route_step"]
+    current_position: NotRequired[str]
+
+
+##################### HANDOFF SINGLE AGENT V2 ######################
+
+class Gaodemap_State_Handoff_Single_V2(AgentState):
+    current_step: Literal["around_search_agent_step", "main_step", "path_planning_agent_step"]
+    current_position: NotRequired[str]
+
+
+##################### HANDOFF MULTI AGENTS ######################
+
+class Gaodemap_State_Handoff_Multi(AgentState):
+    current_step: Literal["call_around_node", "call_path_node"]
+    current_position: NotRequired[str]
+
+
+
+
+
