@@ -10,7 +10,9 @@ from langgraph.checkpoint.memory import InMemorySaver
 from common.prompts import (
     AROUND_SEARCH_HANDOFF_SINGLE_V2_SYSTEM_PROMPT,
     MAIN_HANDOFF_SINGLE_V2_SYSTEM_PROMPT,
-    PATH_PLANNING_HANDOFF_SINGLE_V2_SYSTEM_PROMPT,
+    DRIVING_ROUTE_INNER_SYSTEM_PROMPT,
+    AROUND_SEARCH_INNER_SYSTEM_PROMPT,
+    DRIVING_ROUTE_HANDOFF_SINGLE_V2_SYSTEM_PROMPT,
 )
 from common.tools import (
     around_search,
@@ -47,13 +49,13 @@ model = load_chat_model(
 around_search_agent = create_agent(
     model=model,
     tools=[district_search, around_search],
-    system_prompt=AROUND_SEARCH_HANDOFF_SINGLE_V2_SYSTEM_PROMPT,
+    system_prompt=AROUND_SEARCH_INNER_SYSTEM_PROMPT,
 )
 
 path_planning_agent = create_agent(
     model=model,
     tools=[district_search, driving_route_handoff_single_v2],
-    system_prompt=PATH_PLANNING_HANDOFF_SINGLE_V2_SYSTEM_PROMPT,
+    system_prompt=DRIVING_ROUTE_INNER_SYSTEM_PROMPT,
 )
 
 
@@ -97,7 +99,7 @@ STEP_CONFIG = {
         "tools": [call_around_search_agent, jump_to_path_planning_agent],
     },
     "path_planning_agent_step": {
-        "prompt": PATH_PLANNING_HANDOFF_SINGLE_V2_SYSTEM_PROMPT,
+        "prompt": DRIVING_ROUTE_HANDOFF_SINGLE_V2_SYSTEM_PROMPT,
         "tools": [call_path_planning_agent, jump_to_around_search_agent],
     },
 }

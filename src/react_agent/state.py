@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import operator
 from dataclasses import dataclass, field
-from typing import Callable, Literal, NotRequired, Sequence
+from typing import Callable, Literal, NotRequired, Sequence, TypedDict
 
 from langchain.agents import AgentState
 from langchain.agents.middleware import ModelRequest, ModelResponse, wrap_model_call
@@ -100,3 +100,15 @@ class Gaodemap_State_Handoff_Single_V2(AgentState):
 class Gaodemap_State_Handoff_Multi(AgentState):
     current_step: Literal["call_around_node", "call_path_node"]
     current_position: NotRequired[str]
+
+##################### SKILLS ######################
+
+class Skill(TypedDict):
+    """能够渐进式披露给智能体的一种skill"""
+    name: str
+    description: str
+    content: str
+
+class Gaodemap_State_Skills(AgentState):
+    """Gaodemap_State_Skills is the state for the Gaode agent with skills."""
+    skill_name: str

@@ -25,11 +25,14 @@ from common.utils import (
     gaode_parse_poi_search,
     gaode_parse_polygon_search,
 )
+from common.prompts import SKILLS
+
 from react_agent.state import (
     Gaodemap_State_Handoff_Multi,
     Gaodemap_State_Handoff_Single,
     Gaodemap_State_Handoff_Single_V2,
 )
+
 
 logger = logging.getLogger(__name__)
 
@@ -1018,17 +1021,17 @@ async def driving_route_handoff_single_v2(
 
             route = res.get("route", {})
             path = route.get("paths", [])[0]
-            return Command(
-                update={
-                    "messages": [
-                        ToolMessage(
-                            content=f"{path}", tool_call_id=runtime.tool_call_id
-                        )
-                    ],
-                    "current_step": "around_search_step",
-                }
-            )
-
+            # return Command(
+            #     update={
+            #         "messages": [
+            #             ToolMessage(
+            #                 content=f"{path}", tool_call_id=runtime.tool_call_id
+            #             )
+            #         ],
+            #         "current_step": "around_search_step",
+            #     }
+            # )
+            return path
 
 ################################# HANDOFF MULTI AGENTS TOOLS ##############################################
 @tool
@@ -1080,6 +1083,47 @@ async def jump_to_path_planning_agent_multi(
             "current_step": "call_path_node",
         },
         graph=Command.PARENT,
+    )
+
+################################# SKILLS TOOLS ##############################################
+@tool
+async def load_skill(skill_name: str,runtime:ToolRuntime) -> Command:
+    """将skill的主要内容加载到智能体的上下文中。
+
+    当你需要详细了解如何处理特定类型的请求时，请使用此工具。
+    这将为你提供关于技能领域的全面指导、政策和指南。
+
+    你目前有两个skill可以加载：
+    - around_search: 用于检索周边区域地点
+    - path_planning: 用于规划路线
+
+    使用skill的规则如下：
+    1. 如果用户只是询问周边区域地点检索，并没有路线规划的需求。只需要加载around_search
+    2. 如果用户只询问路线规划，并没有对特定区域进行检索的需求。只需要加载path_planning
+    3. 如果用户既有周边区域地点检索的需求，又有路线规划的需求。请先加载around_search。在得到周边检索结果以后，再加载path_planning来获取路线规划结果
+    
+
+    Args:
+        skill_name: 要加载的技能的名称（例如“around_search”，“path_planning”）
+    """
+    for skill in SKILLS:
+        if skill["name"] == skill_name:
+            return Command(
+                update={
+                    "messages":[
+                        ToolMessage(content=f"已加载Skill: {skill_name}\n\n{skill['content']}",tool_call_id=runtime.tool_call_id)
+                    ],
+                    "skill_name":skill_name
+                }
+            )
+            
+    available = ", ".join(s["name"] for s in SKILLS)
+    return Command(
+        update={
+            "messages":[
+                ToolMessage(content=f"Skill '{skill_name}' 未找到。可用的技能: {available}",tool_call_id=runtime.tool_call_id)
+            ]
+        }
     )
 
 
